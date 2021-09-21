@@ -12,6 +12,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected  $table = 'users';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -41,4 +43,43 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public static $mainRules = [
+        'email' => 'email|unique:users,email',
+        'role' => 'required',
+        'password' => 'nullable|between:3,30|confirmed',
+        'password_confirmation' => 'same:password',
+    ];
+
+    public function roles(){
+        return $this->belongsTo('App\Models\Roles','role','id')->withDefault();
+    }
+
+    public static function paginateAllData()
+    {
+        return static::orderBy('id','DESC')->paginate(10);
+        //return Utility::paginateAllData(self::table());
+
+    }
+
+    public static function getAllData()
+    {
+        return static::where('role_id', 2)->orderBy('id','DESC')->get();
+
+    }
+
+    public static function firstRow($column, $post)
+    {
+        return static::where($column, '=',$post)->first();
+
+    }
+
+    public static function defaultUpdate($column, $postId, $arrayDataUpdate=[])
+    {
+
+        return static::where($column , $postId)->update($arrayDataUpdate);
+
+    }
+
+
 }
