@@ -80,6 +80,18 @@ class CompaniesController extends Controller
 
                 Companies::create($companyDATA);
 
+                $details = [
+
+                    'title' => 'Mail from Glade',
+            
+                    'body' => 'Your account has been created'
+            
+                ];
+            
+               
+            
+                \Mail::to($request->input('email'))->send(new \App\Mail\companyMail($details));
+
                 return response()->json([
                     'message' => 'good',
                     'message2' => 'saved'

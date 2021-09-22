@@ -36,9 +36,9 @@ Route::post('/edit_company', [App\Http\Controllers\CompaniesController::class, '
 Route::post('/delete_company', [App\Http\Controllers\CompaniesController::class, 'destroy'])->name('delete_company');
 
 // -------------Employee MODULE-----------
-Route::any('/employee', [App\Http\Controllers\UsersController::class, 'index'])->name('employee')->middleware('auth');
-Route::post('/create_employee', [App\Http\Controllers\UsersController::class, 'create'])->name('create_employee');
-Route::post('/edit_employee_form', [App\Http\Controllers\UsersController::class, 'editForm'])->name('edit_employee_form');
-Route::post('/edit_employee', [App\Http\Controllers\UsersController::class, 'edit'])->name('edit_employee');
-Route::post('/delete_employee', [App\Http\Controllers\UsersController::class, 'destroy'])->name('delete_employee');
+Route::any('/employee', [App\Http\Controllers\EmployeesController::class, 'index'])->name('employee')->middleware('auth');
+Route::post('/create_employee', [App\Http\Controllers\EmployeesController::class, 'create'])->name('create_employee');
+Route::post('/edit_employee_form', [App\Http\Controllers\EmployeesController::class, 'editForm'])->name('edit_employee_form');
+Route::post('/edit_employee', [App\Http\Controllers\EmployeesController::class, 'edit'])->name('edit_employee');
+Route::post('/delete_employee', [App\Http\Controllers\EmployeesController::class, 'destroy'])->name('delete_employee');
 

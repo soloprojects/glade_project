@@ -61,6 +61,19 @@
                                     </div>
                                 </div>
 
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <div class="form-line">
+                                            <select  class="form-control" name="company" >
+                                                <option value="">Company</option>
+                                                @foreach($companies as $ap)
+                                                    <option value="{{$ap->id}}">{{$ap->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                      </div>
