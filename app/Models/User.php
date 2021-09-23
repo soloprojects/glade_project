@@ -23,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id',
     ];
 
     /**
@@ -46,18 +47,25 @@ class User extends Authenticatable
 
     public static $mainRules = [
         'email' => 'email|unique:users,email',
-        'role' => 'required',
+        'name' => 'required',
+        'password' => 'nullable|between:3,30|confirmed',
+        'password_confirmation' => 'same:password',
+    ];
+
+    public static $mainRulesEdit = [
+        'email' => 'email',
+        'name' => 'required',
         'password' => 'nullable|between:3,30|confirmed',
         'password_confirmation' => 'same:password',
     ];
 
     public function roles(){
-        return $this->belongsTo('App\Models\Roles','role','id')->withDefault();
+        return $this->belongsTo('App\Models\Roles','role_id','id')->withDefault();
     }
 
     public static function paginateAllData()
     {
-        return static::orderBy('id','DESC')->paginate(10);
+        return static::where('role_id', 2)->orderBy('id','DESC')->paginate(10);
         //return Utility::paginateAllData(self::table());
 
     }
@@ -78,6 +86,13 @@ class User extends Authenticatable
     {
 
         return static::where($column , $postId)->update($arrayDataUpdate);
+
+    }
+
+    public static function defaultDelete($column, $postId)
+    {
+
+        return static::where($column , $postId)->delete();
 
     }
 

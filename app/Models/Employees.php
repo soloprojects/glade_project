@@ -9,18 +9,36 @@ class Employees extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     protected  $table = 'employees';
 
     public static $mainRules = [
         'email' => 'email|unique:users,email',
-        'role' => 'required',
-        'first_name' => 'required',
+        'firstname' => 'required',
+        'lastname' => 'required',
+        'password' => 'required|between:3,30|confirmed',
+        'password_confirmation' => 'same:password'
+    ];
+
+    public static $mainRulesEdit = [
+        'email' => 'email',
+        'firstname' => 'required',
+        'lastname' => 'required',
         'password' => 'nullable|between:3,30|confirmed',
-        'password_confirmation' => 'same:password',
+        'password_confirmation' => 'same:password'
     ];
 
     public function userData(){
-        return $this->belongsTo('App\Models\Users','user_id','id')->withDefault();
+        return $this->belongsTo('App\Models\User','user_id','id')->withDefault();
+    }
+
+    public function userCreateData(){
+        return $this->belongsTo('App\Models\User','created_by','id')->withDefault();
+    }
+
+    public function userUpdateData(){
+        return $this->belongsTo('App\Models\User','updated_by','id')->withDefault();
     }
 
     public function companyData(){
@@ -50,6 +68,13 @@ class Employees extends Model
     {
 
         return static::where($column , $postId)->update($arrayDataUpdate);
+
+    }
+
+    public static function defaultDelete($column, $postId)
+    {
+
+        return static::where($column , $postId)->delete();
 
     }
 

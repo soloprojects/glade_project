@@ -22,7 +22,7 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // -------------Admin MODULE-----------
-Route::any('/user', [App\Http\Controllers\UsersController::class, 'index'])->name('user')->middleware('auth');
+Route::any('/user', [App\Http\Controllers\UsersController::class, 'index'])->name('user')->middleware('auth.admin');
 Route::post('/create_user', [App\Http\Controllers\UsersController::class, 'create'])->name('create_user');
 Route::post('/edit_user_form', [App\Http\Controllers\UsersController::class, 'editForm'])->name('edit_user_form');
 Route::post('/edit_user', [App\Http\Controllers\UsersController::class, 'edit'])->name('edit_user');
@@ -30,6 +30,7 @@ Route::post('/delete_user', [App\Http\Controllers\UsersController::class, 'destr
 
 // -------------Company MODULE-----------
 Route::any('/company', [App\Http\Controllers\CompaniesController::class, 'index'])->name('company')->middleware('auth');
+Route::any('/company_detail', [App\Http\Controllers\CompaniesController::class, 'detail'])->name('company_detail')->middleware('auth.employee');
 Route::post('/create_company', [App\Http\Controllers\CompaniesController::class, 'create'])->name('company_user');
 Route::post('/edit_company_form', [App\Http\Controllers\CompaniesController::class, 'editForm'])->name('edit_company_form');
 Route::post('/edit_company', [App\Http\Controllers\CompaniesController::class, 'edit'])->name('edit_company');

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 use App\Models\Roles;
+use App\Helpers\Utility;
 use Auth;
 use View;
 use Validator;
@@ -18,6 +19,15 @@ use Illuminate\Routing\Redirector;
 
 class UsersController extends Controller
 {
+
+    public function __construct()
+
+    {
+
+        $this->middleware(['auth.superAdmin']);
+
+    }
+
     //
     public function index(Request $request)
     {
@@ -48,8 +58,9 @@ class UsersController extends Controller
 
                 $dbDATA = [
                     'email' => ucfirst($request->input('email')),
-                    'password' => Hash::make($request->input('lastname')),
-                    'role' => 2,                    
+                    'name' => ucfirst($request->input('name')),
+                    'password' => Hash::make($request->input('password')),
+                    'role_id' => Utility::admin,                    
                     'remember_token' => $request->input('_token'),
                 ];
                 User::create($dbDATA);
@@ -93,7 +104,7 @@ class UsersController extends Controller
     public function edit(Request $request)
     {
         //
-        $validator = Validator::make($request->all(),User::$mainRules);
+        $validator = Validator::make($request->all(),User::$mainRulesEdit);
         if($validator->passes()) {
 
             $new_password = Hash::make($request->input('password'));
@@ -103,6 +114,7 @@ class UsersController extends Controller
             
             $dbDATA = [
                 'email' => ucfirst($request->input('email')),
+                'name' => ucfirst($request->input('name')),
                 'password' => $new_password,
             ];
         

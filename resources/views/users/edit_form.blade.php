@@ -28,8 +28,21 @@
                 </div>
             </div>
         </div>
+
+        <div class="row clearfix">
+                                
+            <div class="col-sm-4">
+                <b>Name*</b>
+                <div class="form-group">
+                    <div class="form-line">
+                        <input type="email" class="form-control" value="{{$edit->name}}" name="name" placeholder="Name" required>
+                    </div>
+                </div>
+            </div>
+        </div>
    
     </div>
     <input type="hidden" name="prev_password" value="{{$edit->password}}" >
     <input type="hidden" name="edit_id" value="{{$edit->id}}" >
+    <input type="hidden" name="user_id" value="{{$edit->user_id}}" >
 </form>

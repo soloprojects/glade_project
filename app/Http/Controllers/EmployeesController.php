@@ -8,6 +8,7 @@ use App\Models\Employees;
 use App\Models\Companies;
 use App\Models\User;
 use App\Models\Roles;
+use App\Helpers\Utility;
 use Auth;
 use View;
 use Validator;
@@ -20,13 +21,21 @@ use Illuminate\Routing\Redirector;
 
 class EmployeesController extends Controller
 {
+
+    public function __construct()
+
+    {
+
+        $this->middleware(['auth']);
+
+    }
     //
     public function index(Request $request)
     {
         //
         //$req = new Request();
         $mainData =  Employees::paginateAllData();
-        $companies =  Employees::getAllData();
+        $companies =  Companies::getAllData();
 
 
         if ($request->ajax()) {
@@ -51,8 +60,8 @@ class EmployeesController extends Controller
 
                 $dbDATA = [
                     'email' => ucfirst($request->input('email')),
-                    'password' => Hash::make($request->input('lastname')),
-                    'role' => 4,                    
+                    'password' => Hash::make($request->input('password')),
+                    'role_id' => Utility::employee,                    
                     'remember_token' => $request->input('_token'),
                 ];
 
@@ -93,9 +102,9 @@ class EmployeesController extends Controller
     public function editForm(Request $request)
     {
         //
-        $roles = Roles::getAllData();
+        $companies = Companies::getAllData();
         $Employees = Employees::firstRow('id',$request->input('dataId'));
-        return view::make('Employees.edit_form')->with('edit',$Employees)->with('roles',$roles);
+        return view::make('Employees.edit_form')->with('edit',$Employees)->with('companies',$companies);
 
     }
 
@@ -108,7 +117,7 @@ class EmployeesController extends Controller
     public function edit(Request $request)
     {
         //
-        $validator = Validator::make($request->all(),Employees::$mainRules);
+        $validator = Validator::make($request->all(),Employees::$mainRulesEdit);
         if($validator->passes()) {
 
             $photo = $request->get('prev_photo');
@@ -123,29 +132,29 @@ class EmployeesController extends Controller
                 'password' => $new_password,
             ];
 
-            Users::defaultUpdate('id', $request->input('user_id'), $dbDATA);
+            User::defaultUpdate('id', $request->input('user_id'), $dbDATA);
 
             $file = $request->file('logo');
-            $attatchment = '';
+            $attatchment = $request->get('prev_photo');
 
-                if(file_exists(public_path().'/'.$request->get('prev_photo')))
-                unlink(public_path().'/'.$request->get('prev_photo'));
+                
                 
                 if($file != ''){
-                    
-                        $file_name = time() . "_" . $file->getClientOriginalName() .Utility::generateUID(null, 10) . "." .  $file->getClientOriginalExtension();
 
-                        $file->move(
-                            public_path() , $file_name
-                        );
-                        
-                        $attachment =  $file_name;
+                    if(file_exists(public_path('img').$request->get('prev_photo')))
+                    unlink(public_path('img').$request->get('prev_photo'));
+                    
+                    $file_name = time() . "_" . $file->getClientOriginalName() .Utility::generateUID(null, 10) . "." .  $file->getClientOriginalExtension();
+
+                    $file->move(
+                        public_path('img') , $file_name
+                    );
+                    
+                    $attachment =  $file_name;
 
                 }
 
                 $employeeDATA = [
-                    'name' => ucfirst($request->input('name')),
-                    'user_id' => $createUser->id,
                     'first_name' => $request->input('firstname'),
                     'last_name' => $request->input('lastname'),
                     'company_id' => $request->input('company'),                    
@@ -182,6 +191,10 @@ class EmployeesController extends Controller
         $idArray = json_decode($request->input('all_data'));
        
         foreach($idArray as $id){
+
+            $getUser = Employees::firstRow('id',$id);
+            
+            User::defaultDelete('id',$getUser->user_id);
             Employees::destroy($id);
         }
 

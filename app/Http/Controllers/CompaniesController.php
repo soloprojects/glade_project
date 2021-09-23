@@ -7,18 +7,31 @@ use Illuminate\Http\Request;
 use App\Models\Companies;
 use App\Models\User;
 use App\Models\Roles;
+use App\Helpers\Utility;
 use Auth;
+use Log;
 use View;
 use Validator;
 use Input;
 use Hash;
 use DB;
+use Mail;
+use App\Mail\companyMail;
 use App\Http\Requests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 
 class CompaniesController extends Controller
 {
+
+    public function __construct()
+
+    {
+
+        $this->middleware(['auth']);
+
+    }
+
     //
     public function index(Request $request)
     {
@@ -48,9 +61,10 @@ class CompaniesController extends Controller
         if($validator->passes()){
 
                 $dbDATA = [
+                    'name' => ucfirst($request->input('name')),
                     'email' => ucfirst($request->input('email')),
-                    'password' => Hash::make($request->input('lastname')),
-                    'role' => 3,                    
+                    'password' => Hash::make($request->input('password')),
+                    'role_id' => Utility::company,                    
                     'remember_token' => $request->input('_token'),
                 ];
 
@@ -61,10 +75,10 @@ class CompaniesController extends Controller
 
             if($file != ''){
                 
-                    $file_name = time() . "_" . $file->getClientOriginalName() .Utility::generateUID(null, 10) . "." .  $file->getClientOriginalExtension();
+                    $file_name = time() . "_" . $file->getClientOriginalName() ."." .  $file->getClientOriginalExtension();
 
                     $file->move(
-                        public_path() , $file_name
+                        public_path('img') , $file_name
                     );
                     
                     $attachment =  $file_name;
@@ -75,7 +89,8 @@ class CompaniesController extends Controller
                     'name' => ucfirst($request->input('name')),
                     'user_id' => $createUser->id,
                     'website' => $request->input('website'),
-                    'logo' => $attachment,             
+                    'logo' => $attachment,
+                    'created_by' => Auth::user()->id,             
                 ];
 
                 Companies::create($companyDATA);
@@ -90,7 +105,7 @@ class CompaniesController extends Controller
             
                
             
-                \Mail::to($request->input('email'))->send(new \App\Mail\companyMail($details));
+                Mail::to($request->input('email'))->send(new companyMail($details));
 
                 return response()->json([
                     'message' => 'good',
@@ -106,6 +121,16 @@ class CompaniesController extends Controller
 
     }
 
+    public function companyDetail(Request $request)
+    {
+        //
+        
+        $Companies = Companies::firstRow('id',$request->input('dataId'));
+        
+        return view::make('Companies.detail')->with('edit',$Companies);
+
+    }
+
 
     /**
      * Display the specified resource.
@@ -116,9 +141,10 @@ class CompaniesController extends Controller
     public function editForm(Request $request)
     {
         //
-        $roles = Roles::getAllData();
+        
         $Companies = Companies::firstRow('id',$request->input('dataId'));
-        return view::make('Companies.edit_form')->with('edit',$Companies)->with('roles',$roles);
+        //print_r($companies->userData->email);exit();
+        return view::make('Companies.edit_form')->with('edit',$Companies);
 
     }
 
@@ -131,7 +157,7 @@ class CompaniesController extends Controller
     public function edit(Request $request)
     {
         //
-        $validator = Validator::make($request->all(),Companies::$mainRules);
+        $validator = Validator::make($request->all(),Companies::$mainRulesEdit);
         if($validator->passes()) {
 
             $photo = $request->get('prev_photo');
@@ -140,29 +166,31 @@ class CompaniesController extends Controller
             if($request->get('password') == ""){
                 $new_password =  $request->input('prev_password');
             }
-            
+            Log::info($new_password);
             $dbDATA = [
+                'name' => ucfirst($request->input('name')),
                 'email' => ucfirst($request->input('email')),
                 'password' => $new_password,
             ];
 
-            Users::defaultUpdate('id', $request->input('user_id'), $dbDATA);
+            User::defaultUpdate('id', $request->input('user_id'), $dbDATA);
 
             $file = $request->file('logo');
-            $attatchment = '';
+            $attachment = $request->get('prev_photo');
 
-                if(file_exists(public_path().'/'.$request->get('prev_photo')))
-                unlink(public_path().'/'.$request->get('prev_photo'));
+                
                 
                 if($file != ''){
-                    
-                        $file_name = time() . "_" . $file->getClientOriginalName() .Utility::generateUID(null, 10) . "." .  $file->getClientOriginalExtension();
+                    if(file_exists(public_path('img').$request->get('prev_photo')))
+                    unlink(public_path('img').$request->get('prev_photo'));
 
-                        $file->move(
-                            public_path() , $file_name
-                        );
-                        
-                        $attachment =  $file_name;
+                    $file_name = time() . "_" . $file->getClientOriginalName() .Utility::generateUID(null, 10) . "." .  $file->getClientOriginalExtension();
+
+                    $file->move(
+                        public_path() , $file_name
+                    );
+                    
+                    $attachment =  $file_name;
 
                 }
 
@@ -170,6 +198,7 @@ class CompaniesController extends Controller
                     'name' => ucfirst($request->input('name')),
                     'website' => Hash::make($request->input('lastname')),
                     'logo' => $attachment,
+                    'updated_by' => Auth::user()->id,
                 ];
         
                 Companies::defaultUpdate('id', $request->input('edit_id'), $companyDATA);
@@ -202,7 +231,18 @@ class CompaniesController extends Controller
         $idArray = json_decode($request->input('all_data'));
        
         foreach($idArray as $id){
+
+            $getUser = Companies::firstRow('id',$id);
+            
+            $logo = (empty($getUser->logo)) ? 'logo.jpg' : $getUser->logo;
+            if(file_exists(public_path('img').$getUser->logo))
+            unlink(public_path('img').$logo);
+
+            User::defaultDelete('id',$getUser->user_id);
             Companies::destroy($id);
+            
+
+            
         }
 
         return response()->json([

@@ -8,8 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>SB Admin 2 - Tables</title>
+    <title>GLADE</title>
 
     <!-- Styles -->
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
@@ -63,7 +64,7 @@
                 Interface
             </div>
 
-            @if(Auth::user()->role_id == 1)
+            @if(Auth::user()->role_id == \App\Helpers\Utility::superAdmin)
             <!-- Nav Item - Tables -->
             <li class="nav-item active">
                 <a class="nav-link" href="{{url('user')}}">
@@ -73,7 +74,7 @@
             </li>
             @endif
 
-            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
+            @if(Auth::user()->role_id == \App\Helpers\Utility::superAdmin || Auth::user()->role_id == \App\Helpers\Utility::admin)
             <!-- Nav Item - Tables -->
             <li class="nav-item active">
                 <a class="nav-link" href="{{url('company')}}">
@@ -82,7 +83,7 @@
             </li>
             @endif
 
-            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 3)
+            @if(Auth::user()->role_id ==  \App\Helpers\Utility::superAdmin || Auth::user()->role_id == \App\Helpers\Utility::admin || Auth::user()->role_id == \App\Helpers\Utility::company)
             <!-- Nav Item - Tables -->
             <li class="nav-item active">
                 <a class="nav-link" href="{{url('employee')}}">
@@ -91,10 +92,10 @@
             </li>
             @endif
 
-            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 3 || Auth::user()->role_id == 4)
+            @if( Auth::user()->role_id == \App\Helpers\Utility::employee)
             <!-- Nav Item - Tables -->
             <li class="nav-item active">
-                <a class="nav-link" href="{{url('company')}}">
+                <a class="nav-link" href="{{url('company_detail')}}">
                     <i class="fas fa-fw fa-table"></i>
                     <span>company information</span></a>
             </li>
@@ -398,7 +399,7 @@
 
     <!-- Sweet Alert -->
     <script src="{{ asset('sweetalert/dist/sweetalert.js') }}"></script>
-    
+
     <!-- Page level custom scripts -->
     <script src="{{ asset('js/demo/datatables-demo.js') }}"></script>
     <script src="{{ asset('js/app-helpers.js') }}"></script>

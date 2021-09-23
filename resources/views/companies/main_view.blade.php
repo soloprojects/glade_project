@@ -123,8 +123,8 @@
                             <button class="btn btn-success" data-toggle="modal" data-target="#createModal"><i class="fa fa-plus"></i>Add</button>
                         </li>
                         <li>
-                            <button type="button" onclick="deleteItems('kid_checkbox','reload_data','<?php echo url('user'); ?>',
-                                    '<?php echo url('delete_user'); ?>','<?php echo csrf_token(); ?>');" class="btn btn-danger">
+                            <button type="button" onclick="deleteItems('kid_checkbox','reload_data','<?php echo url('company'); ?>',
+                                    '<?php echo url('delete_company'); ?>','<?php echo csrf_token(); ?>');" class="btn btn-danger">
                                 <i class="fa fa-trash-o"></i>Delete
                             </button>
                         </li>
@@ -155,51 +155,40 @@
                             <th>Manage</th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Role</th>
+                            <th>Logo</th>
+                            <th>Created By</th>
+                            <th>Updated By</th>
                             <th>Created at</th>
                             <th>Updated at</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($mainData as $data)
-                        @if($data->role == 1  || Auth::user()->id == $data->id)
-                        @else
+                        
                         <tr>
                             <td scope="row">
                                 <input value="{{$data->id}}" type="checkbox" id="{{$data->id}}" class="kid_checkbox" />
 
                             </td>
                             <td>
-                                <a style="cursor: pointer;" onclick="editForm('{{$data->id}}','edit_content','<?php echo url('edit_user_form') ?>','<?php echo csrf_token(); ?>')"><i class="fa fa-pencil-square-o fa-2x"></i></a>
+                                <a style="cursor: pointer;" onclick="editForm('{{$data->id}}','edit_content','<?php echo url('edit_company_form') ?>','<?php echo csrf_token(); ?>')"><i class="fa fa-pencil-square-o fa-2x"></i>Edit</a>
                             </td>
                             <!-- ENTER YOUR DYNAMIC COLUMNS HERE -->
-                            <td>
-                                @if($data->active_status == 1)
-                                <a href="#">{{$data->title}}&nbsp;{{$data->firstname}}&nbsp;{{$data->othername}}&nbsp;{{$data->lastname}}</a>
-                                @else
-                                    <a href="#">
-                                        <span class="alert-warning">{{$data->title}}&nbsp;{{$data->firstname}}&nbsp;{{$data->othername}}&nbsp;{{$data->lastname}}</span>
-                                    </a>
-                                @endif
+                            <td>                              
+                                <a href="#">
+                                    <span class="alert-warning">{{$data->name}}</span>
+                                </a>
                             </td>
                             
-                            <td>{{$data->email}}</td>                           
-                            <td>{{$data->roles->role_name}}</td>
+                            <td>{{$data->userData->email}}</td>                          
+                            <td><img src="{{ asset('img/'.$data->logo) }}" width="200" height="200"  alt="logo" /></td>
+                            <td>{{$data->userCreateData->name}}</td>
+                            <td>{{$data->userUpdateData->name}}</td> 
                             <td>{{$data->created_at}}</td>
-                            <td>{{$data->updated_at}}</td>
-                            <td>
-                                @if($data->sign != '')
-                                <img src="{{ asset('images/'.$data->sign) }}" width="72" height="60" alt="User" />
-                                @else
-                                No signature yet
-                                @endif
-                            </td>
-                            <td><img src="{{ asset('images/'.$data->photo) }}"  alt="User" /></td>
-
+                            <td>{{$data->updated_at}}</td> 
                             <!--END ENTER YOUR DYNAMIC COLUMNS HERE -->
 
                         </tr>
-                        @endif
                         @endforeach
                         </tbody>
                     </table>
